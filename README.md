@@ -48,17 +48,44 @@ deactivate
 
 ## Usage
 
+### Option 1: Direct Credentials
+
 ```bash
 python aws_console_url_generator.py <AccessKeyId> <SecretAccessKey> <SessionToken>
 ```
 
-### Example
+### Option 2: Assume Role (Recommended)
 
 ```bash
-python aws_console_url_generator.py ASIA5UTJKD365TM6NDNX 5UjufdKDkSCfW0ZH6vMRWOHZWlJVglW1ngwcxVj3 IQoJb3JpZ2luX2VjECYaCXVzLWVhc3QtMSJH...
+python assume_role_console.py <role_arn> <role_session_name> [options]
 ```
 
-The script will output a URL that provides direct access to the AWS Console:
+#### Basic Role Assumption
+```bash
+python assume_role_console.py arn:aws:iam::123456789012:role/StudentRole student-session-001
+```
+
+#### With External ID
+```bash
+python assume_role_console.py arn:aws:iam::123456789012:role/StudentRole student-session-001 --external-id MyExternalId123
+```
+
+#### With Session Policy (File)
+```bash
+python assume_role_console.py arn:aws:iam::123456789012:role/StudentRole student-session-001 --session-policy-file example-session-policy.json
+```
+
+#### With Session Policy (JSON String)
+```bash
+python assume_role_console.py arn:aws:iam::123456789012:role/StudentRole student-session-001 --session-policy-json '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"s3:GetObject","Resource":"*"}]}'
+```
+
+#### All Parameters Combined
+```bash
+python assume_role_console.py arn:aws:iam::123456789012:role/StudentRole student-session-001 --external-id MyExternalId123 --session-policy-file example-session-policy.json
+```
+
+Both scripts will output a URL that provides direct access to the AWS Console:
 ```
 AWS Console Sign-in URL:
 https://signin.aws.amazon.com/federation?Action=login&Issuer=YourApp&Destination=https%3A//console.aws.amazon.com/&SigninToken=...
@@ -71,12 +98,20 @@ https://signin.aws.amazon.com/federation?Action=login&Issuer=YourApp&Destination
 3. **Token Generation**: Calls AWS Federation API to get a signin token
 4. **URL Construction**: Builds the final console URL with the signin token
 
+## Files
+
+- `aws_console_url_generator.py`: Core script for generating console URLs from credentials
+- `assume_role_console.py`: Script for assuming roles and generating console URLs
+- `example-session-policy.json`: Example session policy for restricting permissions
+- `requirements.txt`: Python dependencies
+
 ## Use Cases
 
-- **Educational Labs**: Provide students with temporary console access
+- **Educational Labs**: Provide students with temporary console access via role assumption
 - **Training Sessions**: Quick console access without profile configuration
-- **Demonstrations**: Easy way to share temporary AWS access
-- **Testing**: Validate temporary credentials and access
+- **Demonstrations**: Easy way to share temporary AWS access with restricted permissions
+- **Testing**: Validate role assumptions and temporary access
+- **Cross-Account Access**: Assume roles in different AWS accounts for training
 
 ## Security Notes
 
